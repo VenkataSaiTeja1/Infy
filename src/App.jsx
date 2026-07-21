@@ -280,7 +280,7 @@ export default function App() {
             </form>
 
             <div className="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-500">
-              <p>Admin Default: <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student</code> / <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student@123</code></p>
+              <p>Student Default: <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student</code> / <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student@123</code></p>
             </div>
           </div>
         </main>
