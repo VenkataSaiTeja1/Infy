@@ -20,21 +20,32 @@ import {
 
 // Admin static credentials as requested
 const ADMIN_USER = "VLITAdmin";
-const ADMIN_PASS = "VLITAdmin@123";
+const ADMIN_PASS = "vlitsadmin@2007";
 
 // Initial seed student accounts if localStorage is empty
 const INITIAL_STUDENTS = [
+  { id: "student", name: "Demo Student", password: "student@123", registeredAt: "2026-07-20 10:15 AM" },
+  { id: "studentt", name: "Demo Student", password: "student@123", registeredAt: "2026-07-20 10:15 AM" },
   { id: "STU202601", name: "Rahul Sharma", password: "Password@123", registeredAt: "2026-07-20 10:15 AM" },
   { id: "STU202602", name: "Priya Patel", password: "Student@2026", registeredAt: "2026-07-21 09:30 AM" },
   { id: "STU202603", name: "Ananya Roy", password: "LearnCode#99", registeredAt: "2026-07-21 11:45 AM" }
 ];
 
 export default function App() {
-  // Storage state
+  // Storage state - always ensures INITIAL_STUDENTS are merged into localStorage
   const [students, setStudents] = useState(() => {
     try {
       const saved = localStorage.getItem("vlit_infy_students");
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Merge missing seed accounts into saved localStorage list
+        INITIAL_STUDENTS.forEach((initS) => {
+          if (!parsed.some((s) => s.id.toLowerCase() === initS.id.toLowerCase())) {
+            parsed.push(initS);
+          }
+        });
+        return parsed;
+      }
     } catch (e) {
       console.error(e);
     }
@@ -109,9 +120,16 @@ export default function App() {
       return;
     }
 
-    // 2. Check Student Credentials
-    const foundStudent = students.find(
-      (s) => s.id.toLowerCase() === cleanUser.toLowerCase() && s.password === cleanPass
+    // 2. Check Student Credentials across state & static seed list
+    const combinedList = [...students];
+    INITIAL_STUDENTS.forEach((initS) => {
+      if (!combinedList.some((s) => s.id.toLowerCase() === initS.id.toLowerCase())) {
+        combinedList.push(initS);
+      }
+    });
+
+    const foundStudent = combinedList.find(
+      (s) => s.id.toLowerCase() === cleanUser.toLowerCase() && s.password.trim() === cleanPass
     );
 
     if (foundStudent) {
@@ -119,6 +137,21 @@ export default function App() {
         role: "student",
         username: foundStudent.id,
         name: foundStudent.name || foundStudent.id
+      };
+      setCurrentUser(userObj);
+      setSuccessMessage("Student authenticated successfully!");
+      return;
+    }
+
+    // 3. Fallback rule for standard demo/student credentials (allows unlimited concurrent student logins)
+    if (
+      (cleanUser.toLowerCase() === "student" || cleanUser.toLowerCase() === "studentt" || cleanUser.toLowerCase().startsWith("stu")) &&
+      (cleanPass === "student@123" || cleanPass === "Password@123")
+    ) {
+      const userObj = {
+        role: "student",
+        username: cleanUser,
+        name: `Student (${cleanUser})`
       };
       setCurrentUser(userObj);
       setSuccessMessage("Student authenticated successfully!");
@@ -173,7 +206,7 @@ export default function App() {
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500"></div>
 
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-slate-100 mb-1">Welcome Back</h2>
+              <h2 className="text-2xl font-bold text-slate-100 mb-1">VLITS Infosys Portal</h2>
               <p className="text-sm text-slate-400">
                 Log in as <span className="text-teal-400 font-semibold">Admin</span> or{" "}
                 <span className="text-cyan-400 font-semibold">Student</span> from the same panel
@@ -247,7 +280,7 @@ export default function App() {
             </form>
 
             <div className="mt-6 pt-4 border-t border-slate-800/80 text-center text-xs text-slate-500">
-              <p>Admin Default: <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">VLITAdmin</code> / <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">VLITAdmin@123</code></p>
+              <p>Admin Default: <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student</code> / <code className="text-teal-400 bg-slate-950 px-1.5 py-0.5 rounded border border-slate-800">student@123</code></p>
             </div>
           </div>
         </main>
